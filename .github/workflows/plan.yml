@@ -16,6 +16,9 @@ jobs:
 
     env:
       DBT_TARGET: dev
+      RAW_DB: DWH_RAW_DEV
+      CLEANSED_DB: DWH_CLEANSED_DEV
+      MODEL_DB: DWH_MODEL_DEV
 
     steps:
       - name: Checkout repository
