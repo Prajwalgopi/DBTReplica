@@ -47,6 +47,7 @@ jobs:
 
       - name: Run dbt Deployment
         run: |
+          cd Hal_dbt_poc
           dbt debug
           dbt seed
           dbt build --target dev
