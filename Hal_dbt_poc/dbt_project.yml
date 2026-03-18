@@ -9,10 +9,6 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 
 vars:
-  RAW_DB: "{{ env_var('RAW_DB') }}"
-  CLEANSED_DB: "{{ env_var('CLEANSED_DB') }}"
-  MODEL_DB: "{{ env_var('MODEL_DB') }}"
-
   RAW_SCHEMA: RAW
   CLEANSED_SCHEMA: CLEANSED
   PRESENTATION_SCHEMA: PRESENTATION
@@ -21,16 +17,16 @@ models:
   hal_dbt_poc:
 
     raw:
-      +database: "{{ var('RAW_DB') }}"
+      +database: "{{ env_var('RAW_DB') }}"
       +schema: "{{ var('RAW_SCHEMA') }}"
       +materialized: table
 
     cleansed:
-      +database: "{{ var('CLEANSED_DB') }}"
+      +database: "{{ env_var('CLEANSED_DB') }}"
       +schema: "{{ var('CLEANSED_SCHEMA') }}"
       +materialized: table
 
     presentation:
-      +database: "{{ var('MODEL_DB') }}"
+      +database: "{{ env_var('MODEL_DB') }}"
       +schema: "{{ var('PRESENTATION_SCHEMA') }}"
       +materialized: table
