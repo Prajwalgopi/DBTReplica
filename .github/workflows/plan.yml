@@ -55,6 +55,7 @@ jobs:
       - name: Validate dbt Project
         working-directory: Hal_dbt_poc
         run: |
-          dbt debug
-          dbt compile
-          dbt test || true
+          dbt debug --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}'
+          dbt compile --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}'
+          dbt test --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}' || true
+  
