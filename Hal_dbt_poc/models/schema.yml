@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: cln_orders
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: prs_orders_summary
+    columns:
+      - name: total_amount
+        tests:
+          - not_null
