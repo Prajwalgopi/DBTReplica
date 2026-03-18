@@ -1,0 +1,4 @@
+order_id,customer_name,amount,order_date
+1,Prajwal,100,2024-01-01
+2,Arjun,200,2024-01-02
+3,Prajwal,150,2024-01-03
