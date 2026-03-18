@@ -29,26 +29,21 @@ jobs:
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-          echo "hal_dbt:
-  target: dev
-  outputs:
-    dev:
-      type: snowflake
-      account: $SNOWFLAKE_ACCOUNT
-      user: $SNOWFLAKE_USER
-      password: $SNOWFLAKE_PASSWORD
-      role: $SNOWFLAKE_ROLE
-      warehouse: $SNOWFLAKE_WAREHOUSE
-      database: $SNOWFLAKE_DATABASE
-      schema: PUBLIC
-      threads: 4" > ~/.dbt/profiles.yml
-
-      - name: Validate dbt Project
-        working-directory: Hal_dbt_poc
-        run: |
-          dbt debug
-          dbt compile
-          dbt test || true
+          cat <<EOF > ~/.dbt/profiles.yml
+          hal_dbt:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: $SNOWFLAKE_ACCOUNT
+                user: $SNOWFLAKE_USER
+                password: $SNOWFLAKE_PASSWORD
+                role: $SNOWFLAKE_ROLE
+                warehouse: $SNOWFLAKE_WAREHOUSE
+                database: $SNOWFLAKE_DATABASE
+                schema: PUBLIC
+                threads: 4
+          EOF
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -56,3 +51,10 @@ jobs:
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: DEV_RAW_DB
+
+      - name: Validate dbt Project
+        working-directory: Hal_dbt_poc
+        run: |
+          dbt debug
+          dbt compile
+          dbt test || true
