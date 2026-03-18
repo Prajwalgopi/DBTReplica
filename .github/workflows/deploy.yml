@@ -55,6 +55,6 @@ jobs:
       - name: Run dbt Deployment
         working-directory: Hal_dbt_poc
         run: |
-          dbt debug
-          dbt seed
-          dbt build --target dev
+          dbt debug --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}'
+          dbt seed --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}'
+          dbt build --vars '{"RAW_DB":"DEV_RAW_DB","CLEANSED_DB":"DEV_CLEANSED_DB","MODEL_DB":"DEV_MODEL_DB"}'
