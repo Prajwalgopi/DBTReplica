@@ -1,0 +1,36 @@
+name: 'hal_dbt_poc'
+version: '1.0'
+config-version: 2
+
+profile: 'hal_dbt'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+vars:
+  RAW_DB: DEV_RAW_DB
+  CLEANSED_DB: DEV_CLEANSED_DB
+  MODEL_DB: DEV_MODEL_DB
+
+  RAW_SCHEMA: RAW
+  CLEANSED_SCHEMA: CLEANSED
+  PRESENTATION_SCHEMA: PRESENTATION
+
+models:
+  hal_dbt_poc:
+
+    raw:
+      +database: "{{ var('RAW_DB') }}"
+      +schema: "{{ var('RAW_SCHEMA') }}"
+      +materialized: table
+
+    cleansed:
+      +database: "{{ var('CLEANSED_DB') }}"
+      +schema: "{{ var('CLEANSED_SCHEMA') }}"
+      +materialized: table
+
+    presentation:
+      +database: "{{ var('MODEL_DB') }}"
+      +schema: "{{ var('PRESENTATION_SCHEMA') }}"
+      +materialized: table
