@@ -9,9 +9,9 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 
 vars:
-  RAW_DB: DWH_RAW_{{ target.name | upper }}
-  CLEANSED_DB: DWH_CLEANSED_{{ target.name | upper }}
-  MODEL_DB: DWH_MODEL_{{ target.name | upper }}
+  RAW_DB: "{{ env_var('RAW_DB') }}"
+  CLEANSED_DB: "{{ env_var('CLEANSED_DB') }}"
+  MODEL_DB: "{{ env_var('MODEL_DB') }}"
 
   RAW_SCHEMA: RAW
   CLEANSED_SCHEMA: CLEANSED
