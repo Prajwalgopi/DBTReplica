@@ -47,6 +47,7 @@ jobs:
 
       - name: Validate dbt Project
         run: |
+          cd Hal_dbt_poc
           dbt debug
           dbt compile
           dbt test || true
