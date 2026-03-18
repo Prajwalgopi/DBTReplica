@@ -5,10 +5,10 @@ on:
     branches:
       - '**'
     paths:
-      - 'models/**'
-      - 'macros/**'
-      - 'seeds/**'
-      - 'dbt_project.yml'
+      - 'Hal_dbt_poc/models/**'
+      - 'Hal_dbt_poc/macros/**'
+      - 'Hal_dbt_poc/seeds/**'
+      - 'Hal_dbt_poc/dbt_project.yml'
 
 jobs:
   plan:
