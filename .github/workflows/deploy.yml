@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'Hal_dbt_poc/models/**'
-      - 'Hal_dbt_poc/macros/**'
       - 'Hal_dbt_poc/seeds/**'
       - 'Hal_dbt_poc/dbt_project.yml'
 
@@ -14,35 +13,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      DBT_TARGET: dev
-
-      RAW_DB: DWH_RAW_DEV
-      CLEANSED_DB: DWH_CLEANSED_DEV
-      MODEL_DB: DWH_MODEL_DEV
-
-      RAW_SCHEMA: RAW
-      CLEANSED_SCHEMA: CLEANSED
-      PRESENTATION_SCHEMA: PRESENTATION
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install dbt
-        run: pip install dbt-snowflake
+      - run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
           cat <<EOF > ~/.dbt/profiles.yml
           hal_dbt:
-            target: $DBT_TARGET
+            target: dev
             outputs:
               dev:
                 type: snowflake
@@ -62,9 +47,17 @@ jobs:
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
-      - name: Run dbt Deployment
+      - name: Run dbt Deploy
         working-directory: Hal_dbt_poc
         run: |
-          dbt debug --target $DBT_TARGET
-          dbt seed --target $DBT_TARGET
-          dbt build --target $DBT_TARGET
+          export RAW_DB=DWH_RAW_DEV
+          export CLEANSED_DB=DWH_CLEANSED_DEV
+          export MODEL_DB=DWH_MODEL_DEV
+
+          export RAW_SCHEMA=RAW
+          export CLEANSED_SCHEMA=CLEANSED
+          export PRESENTATION_SCHEMA=PRESENTATION
+
+          dbt debug
+          dbt seed
+          dbt build
