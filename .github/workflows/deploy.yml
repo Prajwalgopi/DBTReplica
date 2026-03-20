@@ -38,7 +38,7 @@ jobs:
                 role: DBT_DEV_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
                 database: DEV_RAW_DB
-                schema: PUBLIC
+                schema: "{{ env_var('RAW_SCHEMA') }}"
                 threads: 4
           EOF
         env:
