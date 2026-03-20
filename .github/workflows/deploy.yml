@@ -8,6 +8,7 @@ on:
       - 'Hal_dbt_poc/models/**'
       - 'Hal_dbt_poc/seeds/**'
       - 'Hal_dbt_poc/dbt_project.yml'
+      - 'Hal_dbt_poc/packages.yml'
 
 jobs:
   deploy:
@@ -40,7 +41,7 @@ jobs:
                 role: $SNOWFLAKE_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
                 database: DEV_RAW_DB
-                schema: ""   
+                schema: BASE
                 threads: 4
           EOF
         env:
@@ -49,6 +50,10 @@ jobs:
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+
+      - name: Install dbt dependencies
+        working-directory: Hal_dbt_poc
+        run: dbt deps
 
       - name: Run dbt Deployment
         working-directory: Hal_dbt_poc
