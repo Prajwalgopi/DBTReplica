@@ -25,3 +25,9 @@ models:
       +database: "{{ env_var('MODEL_DB') }}"
       +schema: "{{ env_var('PRESENTATION_SCHEMA') }}"
       +materialized: table
+
+
+seeds:
+  hal_dbt_poc:
+    +database: "{{ env_var('RAW_DB') }}"
+    +schema: "{{ env_var('RAW_SCHEMA') }}"

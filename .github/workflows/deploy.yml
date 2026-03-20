@@ -5,22 +5,23 @@ on:
     branches:
       - main
     paths:
-      - 'Hal_dbt_poc/models/**'
-      - 'Hal_dbt_poc/seeds/**'
-      - 'Hal_dbt_poc/dbt_project.yml'
+      - 'Hal_dbt_poc/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - run: pip install dbt-snowflake
+      - name: Install dbt
+        run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
@@ -36,7 +37,7 @@ jobs:
                 password: $SNOWFLAKE_PASSWORD
                 role: $SNOWFLAKE_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
-                database: DUMMY_DB
+                database: DEV_RAW_DB
                 schema: PUBLIC
                 threads: 4
           EOF
@@ -47,17 +48,22 @@ jobs:
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
-      - name: Run dbt Deploy
+      - name: Set dbt env vars
+        run: |
+          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
+          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
+          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
+          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
+          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
+          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        working-directory: Hal_dbt_poc
+        run: dbt deps
+
+      - name: Deploy dbt models
         working-directory: Hal_dbt_poc
         run: |
-          export RAW_DB=DWH_RAW_DEV
-          export CLEANSED_DB=DWH_CLEANSED_DEV
-          export MODEL_DB=DWH_MODEL_DEV
-
-          export RAW_SCHEMA=RAW
-          export CLEANSED_SCHEMA=CLEANSED
-          export PRESENTATION_SCHEMA=PRESENTATION
-
           dbt debug
           dbt seed
           dbt build
