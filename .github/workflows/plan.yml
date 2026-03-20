@@ -12,13 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - run: pip install dbt-snowflake
+      - name: Install dbt
+        run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
@@ -35,7 +38,7 @@ jobs:
                 role: $SNOWFLAKE_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
                 database: DEV_RAW_DB
-                schema: BASE
+                schema: PUBLIC
                 threads: 4
           EOF
         env:
@@ -54,13 +57,14 @@ jobs:
           echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
           echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
 
-      - name: Install dbt dependencies
+      - name: Install dependencies
         working-directory: Hal_dbt_poc
         run: dbt deps
 
-      - name: Run dbt Plan
+      - name: Validate Snowflake connection
         working-directory: Hal_dbt_poc
-        run: |
-          dbt debug
-          dbt compile
-          dbt test || true
+        run: dbt debug
+
+      - name: Compile dbt models (NO DEPLOY)
+        working-directory: Hal_dbt_poc
+        run: dbt compile
