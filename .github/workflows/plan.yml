@@ -40,7 +40,7 @@ jobs:
                 role: $SNOWFLAKE_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
                 database: DEV_RAW_DB
-                schema: PUBLIC
+                schema: ""   
                 threads: 4
           EOF
         env:
