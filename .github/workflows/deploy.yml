@@ -38,7 +38,7 @@ jobs:
                 role: DBT_DEV_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
                 database: DEV_RAW_DB
-                schema: "{{ env_var('RAW_SCHEMA') }}"
+                schema: RAW
                 threads: 4
           EOF
         env:
@@ -62,6 +62,4 @@ jobs:
 
       - name: Deploy dbt models
         working-directory: Hal_dbt_poc
-        run: |
-          dbt seed
-          dbt build
+        run: dbt build
