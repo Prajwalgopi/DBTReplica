@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'Hal_dbt_poc/models/**'
-      - 'Hal_dbt_poc/macros/**'
       - 'Hal_dbt_poc/seeds/**'
       - 'Hal_dbt_poc/dbt_project.yml'
 
@@ -15,44 +14,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install dbt
-        run: pip install dbt-snowflake
+      - run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-          echo "hal_dbt:
-  target: dev
-  outputs:
-    dev:
-      type: snowflake
-      account: $SNOWFLAKE_ACCOUNT
-      user: $SNOWFLAKE_USER
-      password: $SNOWFLAKE_PASSWORD
-      role: $SNOWFLAKE_ROLE
-      warehouse: $SNOWFLAKE_WAREHOUSE
-      database: $SNOWFLAKE_DATABASE
-      schema: PUBLIC
-      threads: 4" > ~/.dbt/profiles.yml
-
-      - name: Run dbt Deployment
-        working-directory: Hal_dbt_poc
-        run: |
-          dbt debug
-          dbt seed
-          dbt build --target dev
+          cat <<EOF > ~/.dbt/profiles.yml
+          hal_dbt:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: $SNOWFLAKE_ACCOUNT
+                user: $SNOWFLAKE_USER
+                password: $SNOWFLAKE_PASSWORD
+                role: $SNOWFLAKE_ROLE
+                warehouse: $SNOWFLAKE_WAREHOUSE
+                database: DUMMY_DB
+                schema: PUBLIC
+                threads: 4
+          EOF
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_DATABASE: DEV_RAW_DB
+
+      - name: Run dbt Deploy
+        working-directory: Hal_dbt_poc
+        run: |
+          export RAW_DB=DWH_RAW_DEV
+          export CLEANSED_DB=DWH_CLEANSED_DEV
+          export MODEL_DB=DWH_MODEL_DEV
+
+          export RAW_SCHEMA=RAW
+          export CLEANSED_SCHEMA=CLEANSED
+          export PRESENTATION_SCHEMA=PRESENTATION
+
+          dbt debug
+          dbt seed
+          dbt build
