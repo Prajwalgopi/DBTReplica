@@ -5,26 +5,20 @@ on:
     branches:
       - main
     paths:
-      - 'Hal_dbt_poc/models/**'
-      - 'Hal_dbt_poc/seeds/**'
-      - 'Hal_dbt_poc/dbt_project.yml'
-      - 'Hal_dbt_poc/packages.yml'
+      - 'Hal_dbt_poc/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install dbt
-        run: pip install dbt-snowflake
+      - run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
@@ -51,6 +45,15 @@ jobs:
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
+      - name: Set dbt env vars
+        run: |
+          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
+          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
+          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
+          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
+          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
+          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
+
       - name: Install dbt dependencies
         working-directory: Hal_dbt_poc
         run: dbt deps
@@ -58,14 +61,6 @@ jobs:
       - name: Run dbt Deployment
         working-directory: Hal_dbt_poc
         run: |
-          export RAW_DB=DEV_RAW_DB
-          export CLEANSED_DB=DEV_CLEANSED_DB
-          export MODEL_DB=DEV_MODEL_DB
-
-          export RAW_SCHEMA=RAW
-          export CLEANSED_SCHEMA=CLEANSED
-          export PRESENTATION_SCHEMA=PRESENTATION
-
           dbt debug
           dbt seed
           dbt build
