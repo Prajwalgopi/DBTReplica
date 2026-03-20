@@ -62,6 +62,4 @@ jobs:
 
       - name: Deploy dbt models
         working-directory: Hal_dbt_poc
-        run: |
-          dbt seed
-          dbt build
+        run: dbt build
