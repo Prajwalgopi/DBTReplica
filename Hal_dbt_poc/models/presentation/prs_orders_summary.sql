@@ -1,4 +1,4 @@
--- Test Changes
+-- Test Change
 select
     customer_name,
     count(*) as total_orders,
