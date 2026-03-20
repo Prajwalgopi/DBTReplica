@@ -14,13 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - run: pip install dbt-snowflake
+      - name: Install dbt
+        run: pip install dbt-snowflake
 
       - name: Create profiles.yml
         run: |
@@ -36,7 +39,7 @@ jobs:
                 password: $SNOWFLAKE_PASSWORD
                 role: $SNOWFLAKE_ROLE
                 warehouse: $SNOWFLAKE_WAREHOUSE
-                database: DUMMY_DB
+                database: DEV_RAW_DB
                 schema: PUBLIC
                 threads: 4
           EOF
@@ -50,9 +53,9 @@ jobs:
       - name: Run dbt Plan
         working-directory: Hal_dbt_poc
         run: |
-          export RAW_DB=DWH_RAW_DEV
-          export CLEANSED_DB=DWH_CLEANSED_DEV
-          export MODEL_DB=DWH_MODEL_DEV
+          export RAW_DB=DEV_RAW_DB
+          export CLEANSED_DB=DEV_CLEANSED_DB
+          export MODEL_DB=DEV_MODEL_DB
 
           export RAW_SCHEMA=RAW
           export CLEANSED_SCHEMA=CLEANSED
