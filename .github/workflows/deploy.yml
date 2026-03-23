@@ -1,4 +1,4 @@
-lname: HAL - Deploy DBT Project
+name: HAL - Deploy DBT Project
 
 on:
   push:
