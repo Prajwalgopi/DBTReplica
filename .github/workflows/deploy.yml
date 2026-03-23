@@ -17,8 +17,13 @@ jobs:
 
       - name: Package DBT Project
         run: |
-          cd Hal_dbt_poc
+          mkdir build
+          cp -r Hal_dbt_poc/* build/
+          cd build
           zip -r ../dbt_project.zip .
+
+      - name: Verify ZIP Structure
+        run: unzip -l dbt_project.zip
 
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
