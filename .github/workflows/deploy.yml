@@ -15,11 +15,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Debug Project Structure
-        run: |
-          echo "==== PROJECT STRUCTURE ===="
-          ls -R Hal_dbt_poc
-
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
 
@@ -31,6 +26,7 @@ jobs:
         run: |
           python <<EOF
           import snowflake.connector
+          import os
 
           conn = snowflake.connector.connect(
               account="${SNOWFLAKE_ACCOUNT}",
@@ -49,12 +45,26 @@ jobs:
               cs.execute("CREATE STAGE IF NOT EXISTS DBT_STAGE")
               cs.execute("REMOVE @DBT_STAGE")
 
-              # Upload files (correct way)
+              # Upload root file
               cs.execute("PUT file://Hal_dbt_poc/dbt_project.yml @DBT_STAGE OVERWRITE=TRUE")
-              cs.execute("PUT file://Hal_dbt_poc/models/* @DBT_STAGE/models OVERWRITE=TRUE")
-              cs.execute("PUT file://Hal_dbt_poc/macros/* @DBT_STAGE/macros OVERWRITE=TRUE")
 
-              # Create DBT PROJECT object
+              # Upload models recursively
+              for root, dirs, files in os.walk("Hal_dbt_poc/models"):
+                  for file in files:
+                      local_path = os.path.join(root, file)
+                      rel_path = os.path.relpath(root, "Hal_dbt_poc/models")
+                      stage_path = "@DBT_STAGE/models/" + rel_path if rel_path != "." else "@DBT_STAGE/models"
+                      cs.execute(f"PUT file://{local_path} {stage_path} OVERWRITE=TRUE")
+
+              # Upload macros recursively
+              for root, dirs, files in os.walk("Hal_dbt_poc/macros"):
+                  for file in files:
+                      local_path = os.path.join(root, file)
+                      rel_path = os.path.relpath(root, "Hal_dbt_poc/macros")
+                      stage_path = "@DBT_STAGE/macros/" + rel_path if rel_path != "." else "@DBT_STAGE/macros"
+                      cs.execute(f"PUT file://{local_path} {stage_path} OVERWRITE=TRUE")
+
+              # Create DBT project
               cs.execute("""
               CREATE OR REPLACE DBT PROJECT DBTPOC
               FROM '@DBT_STAGE'
