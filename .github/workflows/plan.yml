@@ -12,19 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install dbt
-        run: pip install dbt-snowflake
+      - run: pip install dbt-snowflake
 
-      - name: Create profiles.yml (REAL VALUES)
-        run: |
+      - run: |
           mkdir -p ~/.dbt
           cat <<EOF > ~/.dbt/profiles.yml
           hal_dbt:
@@ -32,9 +28,9 @@ jobs:
             outputs:
               dev:
                 type: snowflake
-                account: $SNOWFLAKE_ACCOUNT
-                user: $SNOWFLAKE_USER
-                password: $SNOWFLAKE_PASSWORD
+                account: "$SNOWFLAKE_ACCOUNT"
+                user: "$SNOWFLAKE_USER"
+                password: "$SNOWFLAKE_PASSWORD"
                 role: DBT_DEV_ROLE
                 warehouse: DBT_WH
                 database: COMMON_DB_DEV
@@ -46,14 +42,11 @@ jobs:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
 
-      - name: Install dependencies
-        working-directory: Hal_dbt_poc
+      - working-directory: Hal_dbt_poc
         run: dbt deps
 
-      - name: Debug connection (optional but useful)
-        working-directory: Hal_dbt_poc
+      - working-directory: Hal_dbt_poc
         run: dbt debug
 
-      - name: Compile (Plan)
-        working-directory: Hal_dbt_poc
+      - working-directory: Hal_dbt_poc
         run: dbt compile
