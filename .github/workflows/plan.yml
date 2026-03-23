@@ -23,6 +23,15 @@ jobs:
       - name: Install dbt
         run: pip install dbt-snowflake
 
+      - name: Set Environment Variables
+        run: |
+          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
+          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
+          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
+          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
+          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
+          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
+
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
