@@ -1,4 +1,4 @@
-name: Plan dbt Changes
+name: HAL - Plan DBT Changes
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -22,6 +22,15 @@ jobs:
 
       - name: Install dbt
         run: pip install dbt-snowflake
+
+      - name: Set Environment Variables
+        run: |
+          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
+          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
+          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
+          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
+          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
+          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
 
       - name: Create profiles.yml
         run: |
@@ -47,20 +56,10 @@ jobs:
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
-      - name: Set dbt env vars
-        run: |
-          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
-          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
-          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
-          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
-          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
-          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
-
-      - name: Install dependencies
+      - name: Install Dependencies
         working-directory: Hal_dbt_poc
         run: dbt deps
 
-      - name: Validate dbt (NO DEPLOY)
+      - name: Compile
         working-directory: Hal_dbt_poc
-        run: |
-          dbt compile
+        run: dbt compile

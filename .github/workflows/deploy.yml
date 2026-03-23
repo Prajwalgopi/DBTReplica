@@ -1,4 +1,4 @@
-name: Deploy dbt to Snowflake
+name: HAL - Deploy DBT Project
 
 on:
   push:
@@ -12,54 +12,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
-      - name: Install dbt
-        run: pip install dbt-snowflake
-
-      - name: Create profiles.yml
+      - name: Package DBT Project
         run: |
-          mkdir -p ~/.dbt
-          cat <<EOF > ~/.dbt/profiles.yml
-          hal_dbt:
-            target: dev
-            outputs:
-              dev:
-                type: snowflake
-                account: $SNOWFLAKE_ACCOUNT
-                user: $SNOWFLAKE_USER
-                password: $SNOWFLAKE_PASSWORD
-                role: DBT_DEV_ROLE
-                warehouse: $SNOWFLAKE_WAREHOUSE
-                database: DEV_RAW_DB
-                schema: ""
-                threads: 4
-          EOF
+          cd Hal_dbt_poc
+          zip -r ../dbt_project.zip .
+
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
+          bash snowsql-1.2.28-linux_x86_64.bash
+
+      - name: Deploy DBT Project
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-
-      - name: Set dbt env vars
         run: |
-          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
-          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
-          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
-          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
-          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
-          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
+          snowsql -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -p $SNOWFLAKE_PASSWORD <<EOF
 
-      - name: Install dependencies
-        working-directory: Hal_dbt_poc
-        run: dbt deps
+          USE DATABASE COMMON_DB_DEV;
+          USE SCHEMA DBT_PROJECTS;
 
-      - name: Deploy dbt models
-        working-directory: Hal_dbt_poc
-        run: dbt build
+          CREATE STAGE IF NOT EXISTS DBT_STAGE;
+
+          PUT file://dbt_project.zip @DBT_STAGE AUTO_COMPRESS=FALSE OVERWRITE=TRUE;
+
+          CREATE OR REPLACE DBT PROJECT DBTPOC
+          FROM '@DBT_STAGE/dbt_project.zip';
+
+          EOF
