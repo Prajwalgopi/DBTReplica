@@ -1,4 +1,3 @@
-
 name: HAL - Deploy DBT Project
 
 on:
@@ -16,10 +15,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Debug Project Structure
+        run: |
+          echo "==== PROJECT STRUCTURE ===="
+          ls -R Hal_dbt_poc
+
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
 
-      - name: Deploy DBT Project (Native Object)
+      - name: Deploy DBT Project
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -45,10 +49,10 @@ jobs:
               cs.execute("CREATE STAGE IF NOT EXISTS DBT_STAGE")
               cs.execute("REMOVE @DBT_STAGE")
 
-              # Upload files (NOT ZIP)
+              # Upload files (correct way)
               cs.execute("PUT file://Hal_dbt_poc/dbt_project.yml @DBT_STAGE OVERWRITE=TRUE")
-              cs.execute("PUT file://Hal_dbt_poc/models @DBT_STAGE OVERWRITE=TRUE")
-              cs.execute("PUT file://Hal_dbt_poc/macros @DBT_STAGE OVERWRITE=TRUE")
+              cs.execute("PUT file://Hal_dbt_poc/models/* @DBT_STAGE/models OVERWRITE=TRUE")
+              cs.execute("PUT file://Hal_dbt_poc/macros/* @DBT_STAGE/macros OVERWRITE=TRUE")
 
               # Create DBT PROJECT object
               cs.execute("""
