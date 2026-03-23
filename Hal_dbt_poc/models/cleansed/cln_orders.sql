@@ -1,4 +1,4 @@
---test 7
+--test 8
 select
     order_id,
     upper(customer_name) as customer_name,
