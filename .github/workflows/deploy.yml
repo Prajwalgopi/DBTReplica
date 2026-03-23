@@ -1,4 +1,4 @@
-name: HAL - Deploy DBT Project
+lname: HAL - Deploy DBT Project
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
 
-      - name: Deploy with Versioning
+      - name: Deploy DBT Project
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -38,23 +38,7 @@ jobs:
               cs.execute("USE DATABASE COMMON_DB_DEV")
               cs.execute("USE SCHEMA DBT_PROJECTS")
 
-              # Step 1: Create new version
-              cs.execute("ALTER DBT PROJECT DBTPOC ADD VERSION")
-
-              # Step 2: Get latest version name
-              cs.execute("DESCRIBE DBT PROJECT DBTPOC")
-              rows = cs.fetchall()
-
-              version_name = None
-              for row in rows:
-                  if row[0] == 'default_version_name':
-                      version_name = row[1]
-
-              # Step 3: Deploy to that version
-              cs.execute(f"""
-              CREATE OR REPLACE DBT PROJECT DBTPOC
-              FROM '@HAL_REPO/branches/main/Hal_dbt_poc'
-              """)
+              cs.execute("CREATE OR REPLACE DBT PROJECT DBTPOC FROM '@HAL_REPO/branches/main/Hal_dbt_poc'")
 
           finally:
               cs.close()
