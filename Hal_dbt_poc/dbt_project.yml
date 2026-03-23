@@ -2,6 +2,8 @@ name: 'hal_dbt_poc'
 version: '1.0'
 config-version: 2
 
+profile: 'default'   
+
 model-paths: ["models"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
