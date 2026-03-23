@@ -1,4 +1,4 @@
--- this is confirmation 2
+-- this is confirmation 1
 select
     customer_name,
     count(*) as total_orders,
