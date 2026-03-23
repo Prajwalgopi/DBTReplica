@@ -20,22 +20,27 @@ jobs:
           cd Hal_dbt_poc
           zip -r ../dbt_project.zip .
 
-      - name: Install SnowSQL
+      - name: Install Snowflake CLI
         run: |
-          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
-          SNOWSQL_DEST=~/snowsql SNOWSQL_LOGIN_SHELL=~/.bashrc bash snowsql-1.2.28-linux_x86_64.bash -y
-          export PATH=~/snowsql/bin:$PATH
-          snowsql --version
+          pip install snowflake-cli
 
-      - name: Deploy DBT Project
+      - name: Configure Snowflake Connection
+        run: |
+          mkdir -p ~/.snowflake
+          cat <<EOF > ~/.snowflake/config.toml
+          [default]
+          account = "${SNOWFLAKE_ACCOUNT}"
+          user = "${SNOWFLAKE_USER}"
+          password = "${SNOWFLAKE_PASSWORD}"
+          EOF
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-        run: |
-          export PATH=~/snowsql/bin:$PATH
 
-          snowsql -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -p $SNOWFLAKE_PASSWORD <<EOF
+      - name: Deploy DBT Project
+        run: |
+          snow sql -q "
           USE DATABASE COMMON_DB_DEV;
           USE SCHEMA DBT_PROJECTS;
 
@@ -45,4 +50,4 @@ jobs:
 
           CREATE OR REPLACE DBT PROJECT DBTPOC
           FROM '@DBT_STAGE/dbt_project.zip';
-          EOF
+          "
