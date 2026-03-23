@@ -2,7 +2,7 @@ name: 'hal_dbt_poc'
 version: '1.0'
 config-version: 2
 
-profile: 'snowflake'   
+profile: 'hal_dbt'   
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
