@@ -28,9 +28,9 @@ jobs:
             outputs:
               dev:
                 type: snowflake
-                account: "$SNOWFLAKE_ACCOUNT"
-                user: "$SNOWFLAKE_USER"
-                password: "$SNOWFLAKE_PASSWORD"
+                account: ${SNOWFLAKE_ACCOUNT}
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
                 role: DBT_DEV_ROLE
                 warehouse: DBT_WH
                 database: COMMON_DB_DEV
