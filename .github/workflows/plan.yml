@@ -12,28 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install dbt
-        run: pip install dbt-snowflake
+      - run: pip install dbt-snowflake
 
-      - name: Set Environment Variables
-        run: |
-          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
-          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
-          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
-          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
-          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
-          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
-
-      - name: Create profiles.yml
-        run: |
+      - run: |
           mkdir -p ~/.dbt
           cat <<EOF > ~/.dbt/profiles.yml
           hal_dbt:
@@ -41,12 +28,12 @@ jobs:
             outputs:
               dev:
                 type: snowflake
-                account: $SNOWFLAKE_ACCOUNT
-                user: $SNOWFLAKE_USER
-                password: $SNOWFLAKE_PASSWORD
+                account: ${SNOWFLAKE_ACCOUNT}
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
                 role: DBT_DEV_ROLE
-                warehouse: $SNOWFLAKE_WAREHOUSE
-                database: DEV_RAW_DB
+                warehouse: DBT_WH
+                database: COMMON_DB_DEV
                 schema: PUBLIC
                 threads: 4
           EOF
@@ -54,12 +41,12 @@ jobs:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
-      - name: Install Dependencies
-        working-directory: Hal_dbt_poc
+      - working-directory: Hal_dbt_poc
         run: dbt deps
 
-      - name: Compile
-        working-directory: Hal_dbt_poc
+      - working-directory: Hal_dbt_poc
+        run: dbt debug
+
+      - working-directory: Hal_dbt_poc
         run: dbt compile
