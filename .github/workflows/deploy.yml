@@ -17,19 +17,22 @@ jobs:
 
       - name: Debug Project Structure
         run: |
-          echo "Listing Hal_dbt_poc contents"
+          echo "==== PROJECT STRUCTURE ===="
           ls -R Hal_dbt_poc
 
-      - name: Package DBT Project (Correct Root)
+      - name: Package DBT Project (Force Correct Root)
         run: |
-          cd Hal_dbt_poc
-          pwd
+          rm -rf build dbt_project.zip
+          mkdir build
+          cp -r Hal_dbt_poc/. build/
+          cd build
+          echo "==== BUILD FOLDER ===="
           ls
           zip -r ../dbt_project.zip .
 
       - name: Verify ZIP Structure
         run: |
-          echo "ZIP CONTENTS:"
+          echo "==== ZIP CONTENTS ===="
           unzip -l dbt_project.zip
 
       - name: Install Snowflake Connector
