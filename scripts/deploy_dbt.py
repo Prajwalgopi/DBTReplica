@@ -1,9 +1,10 @@
+import os
 import snowflake.connector
 
 conn = snowflake.connector.connect(
-    account="${SNOWFLAKE_ACCOUNT}",
-    user="${SNOWFLAKE_USER}",
-    password="${SNOWFLAKE_PASSWORD}",
+    account=os.environ["SNOWFLAKE_ACCOUNT"],
+    user=os.environ["SNOWFLAKE_USER"],
+    password=os.environ["SNOWFLAKE_PASSWORD"],
     role="DBT_DEV_ROLE",
     warehouse="DBT_WH"
 )
