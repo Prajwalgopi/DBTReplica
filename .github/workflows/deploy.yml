@@ -21,8 +21,7 @@ jobs:
           zip -r ../dbt_project.zip .
 
       - name: Install Snowflake CLI
-        run: |
-          pip install snowflake-cli
+        run: pip install snowflake-cli
 
       - name: Configure Snowflake Connection
         run: |
@@ -33,6 +32,8 @@ jobs:
           user = "${SNOWFLAKE_USER}"
           password = "${SNOWFLAKE_PASSWORD}"
           EOF
+
+          chmod 600 ~/.snowflake/config.toml
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
