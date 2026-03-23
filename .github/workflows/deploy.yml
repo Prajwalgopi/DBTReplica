@@ -35,7 +35,9 @@ jobs:
           conn = snowflake.connector.connect(
               account="${SNOWFLAKE_ACCOUNT}",
               user="${SNOWFLAKE_USER}",
-              password="${SNOWFLAKE_PASSWORD}"
+              password="${SNOWFLAKE_PASSWORD}",
+              role="DBT_DEV_ROLE",
+              warehouse="DBT_WH"
           )
 
           cs = conn.cursor()
@@ -43,9 +45,13 @@ jobs:
           try:
               cs.execute("USE DATABASE COMMON_DB_DEV")
               cs.execute("USE SCHEMA DBT_PROJECTS")
+
               cs.execute("CREATE STAGE IF NOT EXISTS DBT_STAGE")
+
               cs.execute("PUT file://dbt_project.zip @DBT_STAGE AUTO_COMPRESS=FALSE OVERWRITE=TRUE")
+
               cs.execute("CREATE OR REPLACE DBT PROJECT DBTPOC FROM '@DBT_STAGE/dbt_project.zip'")
+
           finally:
               cs.close()
               conn.close()
