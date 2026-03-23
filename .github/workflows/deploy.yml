@@ -12,12 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Package DBT Project
+        run: |
+          cd Hal_dbt_poc
+          zip -r ../dbt_project.zip .
+
       - name: Install SnowSQL
         run: |
           curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
           bash snowsql-1.2.28-linux_x86_64.bash
 
-      - name: Deploy DBT Project Object
+      - name: Deploy DBT Project
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -28,9 +36,11 @@ jobs:
           USE DATABASE COMMON_DB_DEV;
           USE SCHEMA DBT_PROJECTS;
 
+          CREATE STAGE IF NOT EXISTS DBT_STAGE;
+
+          PUT file://dbt_project.zip @DBT_STAGE AUTO_COMPRESS=FALSE OVERWRITE=TRUE;
+
           CREATE OR REPLACE DBT PROJECT DBTPOC
-          FROM GIT REPOSITORY 'HAL_REPO'
-          MAIN BRANCH = 'main'
-          ROOT_PATH = 'Hal_dbt_poc';
+          FROM '@DBT_STAGE/dbt_project.zip';
 
           EOF
