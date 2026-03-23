@@ -1,2 +1,2 @@
---test changes
+--test change
 select * from {{ ref('orders') }}
