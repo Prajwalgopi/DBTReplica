@@ -1,3 +1,4 @@
+
 name: HAL - Deploy DBT Project
 
 on:
@@ -15,30 +16,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Debug Project Structure
-        run: |
-          echo "==== PROJECT STRUCTURE ===="
-          ls -R Hal_dbt_poc
-
-      - name: Package DBT Project (Force Correct Root)
-        run: |
-          rm -rf build dbt_project.zip
-          mkdir build
-          cp -r Hal_dbt_poc/. build/
-          cd build
-          echo "==== BUILD FOLDER ===="
-          ls
-          zip -r ../dbt_project.zip .
-
-      - name: Verify ZIP Structure
-        run: |
-          echo "==== ZIP CONTENTS ===="
-          unzip -l dbt_project.zip
-
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
 
-      - name: Deploy DBT Project
+      - name: Deploy DBT Project (Native Object)
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -62,10 +43,18 @@ jobs:
               cs.execute("USE SCHEMA DBT_PROJECTS")
 
               cs.execute("CREATE STAGE IF NOT EXISTS DBT_STAGE")
+              cs.execute("REMOVE @DBT_STAGE")
 
-              cs.execute("PUT file://dbt_project.zip @DBT_STAGE AUTO_COMPRESS=FALSE OVERWRITE=TRUE")
+              # Upload files (NOT ZIP)
+              cs.execute("PUT file://Hal_dbt_poc/dbt_project.yml @DBT_STAGE OVERWRITE=TRUE")
+              cs.execute("PUT file://Hal_dbt_poc/models @DBT_STAGE OVERWRITE=TRUE")
+              cs.execute("PUT file://Hal_dbt_poc/macros @DBT_STAGE OVERWRITE=TRUE")
 
-              cs.execute("CREATE OR REPLACE DBT PROJECT DBTPOC FROM '@DBT_STAGE/dbt_project.zip'")
+              # Create DBT PROJECT object
+              cs.execute("""
+              CREATE OR REPLACE DBT PROJECT DBTPOC
+              FROM '@DBT_STAGE'
+              """)
 
           finally:
               cs.close()
