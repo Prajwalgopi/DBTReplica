@@ -20,33 +20,16 @@ jobs:
 
       - run: pip install dbt-snowflake
 
-      - run: |
-          mkdir -p ~/.dbt
-          cat <<EOF > ~/.dbt/profiles.yml
-          hal_dbt:
-            target: dev
-            outputs:
-              dev:
-                type: snowflake
-                account: ${SNOWFLAKE_ACCOUNT}
-                user: ${SNOWFLAKE_USER}
-                password: ${SNOWFLAKE_PASSWORD}
-                role: DBT_DEV_ROLE
-                warehouse: DBT_WH
-                database: COMMON_DB_DEV
-                schema: PUBLIC
-                threads: 4
-          EOF
+      - working-directory: Hal_dbt_poc
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-
-      - working-directory: Hal_dbt_poc
-        run: dbt deps
-
-      - working-directory: Hal_dbt_poc
         run: dbt debug
 
       - working-directory: Hal_dbt_poc
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: dbt compile
