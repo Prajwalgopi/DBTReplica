@@ -38,6 +38,8 @@ jobs:
               cs.execute("USE DATABASE COMMON_DB_DEV")
               cs.execute("USE SCHEMA DBT_PROJECTS")
 
+              cs.execute("ALTER GIT REPOSITORY HAL_REPO FETCH")
+
               cs.execute("CREATE OR REPLACE DBT PROJECT DBTPOC FROM '@HAL_REPO/branches/main/Hal_dbt_poc'")
 
           finally:
