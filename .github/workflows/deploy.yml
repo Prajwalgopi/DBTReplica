@@ -40,6 +40,8 @@ jobs:
 
               cs.execute("ALTER GIT REPOSITORY HAL_REPO FETCH")
 
+              cs.execute("ALTER DBT PROJECT DBTPOC ADD VERSION")
+
               cs.execute("CREATE OR REPLACE DBT PROJECT DBTPOC FROM '@HAL_REPO/branches/main/Hal_dbt_poc'")
 
           finally:

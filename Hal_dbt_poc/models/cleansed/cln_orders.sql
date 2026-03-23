@@ -1,4 +1,4 @@
---this confirms changes 1
+--magical cicd
 select
     order_id,
     upper(customer_name) as customer_name,
