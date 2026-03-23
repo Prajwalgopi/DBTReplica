@@ -1,2 +1,2 @@
---test change
+--final confirmation
 select * from {{ ref('orders') }}
