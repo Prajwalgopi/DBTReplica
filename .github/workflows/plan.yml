@@ -47,23 +47,10 @@ jobs:
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
-      - name: Set Environment Variables
-        run: |
-          echo "RAW_DB=DEV_RAW_DB" >> $GITHUB_ENV
-          echo "CLEANSED_DB=DEV_CLEANSED_DB" >> $GITHUB_ENV
-          echo "MODEL_DB=DEV_MODEL_DB" >> $GITHUB_ENV
-          echo "RAW_SCHEMA=RAW" >> $GITHUB_ENV
-          echo "CLEANSED_SCHEMA=CLEANSED" >> $GITHUB_ENV
-          echo "PRESENTATION_SCHEMA=PRESENTATION" >> $GITHUB_ENV
-
       - name: Install Dependencies
         working-directory: Hal_dbt_poc
         run: dbt deps
 
-      - name: Validate Connection
-        working-directory: Hal_dbt_poc
-        run: dbt debug
-
-      - name: Compile (Plan)
+      - name: Compile
         working-directory: Hal_dbt_poc
         run: dbt compile
