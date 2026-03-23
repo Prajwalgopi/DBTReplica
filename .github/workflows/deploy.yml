@@ -29,11 +29,11 @@ jobs:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
-          snow sql \
-          --account $SNOWFLAKE_ACCOUNT \
-          --user $SNOWFLAKE_USER \
-          --password $SNOWFLAKE_PASSWORD \
-          -q "
+          export SNOWFLAKE_CONNECTIONS_DEFAULT_ACCOUNT=$SNOWFLAKE_ACCOUNT
+          export SNOWFLAKE_CONNECTIONS_DEFAULT_USER=$SNOWFLAKE_USER
+          export SNOWFLAKE_CONNECTIONS_DEFAULT_PASSWORD=$SNOWFLAKE_PASSWORD
+
+          snow sql -q "
           USE DATABASE COMMON_DB_DEV;
           USE SCHEMA DBT_PROJECTS;
 
