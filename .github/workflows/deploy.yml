@@ -15,15 +15,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Package DBT Project
+      - name: Debug Project Structure
         run: |
-          mkdir build
-          cp -r Hal_dbt_poc/* build/
-          cd build
+          echo "Listing Hal_dbt_poc contents"
+          ls -R Hal_dbt_poc
+
+      - name: Package DBT Project (Correct Root)
+        run: |
+          cd Hal_dbt_poc
+          pwd
+          ls
           zip -r ../dbt_project.zip .
 
       - name: Verify ZIP Structure
-        run: unzip -l dbt_project.zip
+        run: |
+          echo "ZIP CONTENTS:"
+          unzip -l dbt_project.zip
 
       - name: Install Snowflake Connector
         run: pip install snowflake-connector-python
