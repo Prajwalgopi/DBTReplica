@@ -1,4 +1,3 @@
---magical cicd deployments
 select
     order_id,
     upper(customer_name) as customer_name,

@@ -1,4 +1,3 @@
--- magical cicd
 select
     customer_name,
     count(*) as total_orders,
